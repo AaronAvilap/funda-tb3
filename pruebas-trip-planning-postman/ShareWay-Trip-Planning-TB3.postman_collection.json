@@ -1,0 +1,440 @@
+{
+  "info": {
+    "name": "ShareWay Trip Planning & Matching — pruebas y evidencia TB3",
+    "description": "Basada en la colección del repositorio FundaTechPeru/shareway-trip-planning-matching-service (main 8094f48). Ampliación externa para evidencia; no modifica el repositorio de la API. Ejecución local mediante Newman. Cada ejecución usa una zona ficticia distinta para aislar sus datos. No requiere JWT ni comprueba la autenticación del gateway.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 Salud del servicio",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/actuator/health"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set(\"zone\", \"Evidencia-\"+pm.variables.replaceIn(\"{{$guid}}\"));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Servicio UP\",()=>pm.expect(pm.response.json().status).to.eql(\"UP\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Registrar disponibilidad compatible",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/driver-availabilities",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"driverId\": 10,\n  \"operationZone\": \"{{zone}}\",\n  \"availableDate\": \"2026-11-10\",\n  \"startTime\": \"07:00:00\",\n  \"endTime\": \"09:00:00\",\n  \"availableSeats\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Disponibilidad con UUID y 3 asientos\",()=>{const x=pm.response.json();pm.expect(x.id).to.match(/^[0-9a-f-]{36}$/);pm.expect(x.availableSeats).to.eql(3);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Crear solicitud de viaje",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/trip-requests",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passengerId\": 25,\n  \"originLabel\": \"UPC Monterrico\",\n  \"destinationLabel\": \"Chorrillos\",\n  \"operationZone\": \"{{zone}}\",\n  \"originLat\": -12.1048,\n  \"originLng\": -76.9632,\n  \"destinationLat\": -12.1721,\n  \"destinationLng\": -77.0164,\n  \"travelDate\": \"2026-11-10\",\n  \"earliestDeparture\": \"07:30:00\",\n  \"latestDeparture\": \"08:30:00\",\n  \"seatsRequested\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "const x=pm.response.json();pm.collectionVariables.set(\"tripRequestId\",x.id);pm.test(\"Solicitud con UUID y estado inicial\",()=>{pm.expect(x.id).to.match(/^[0-9a-f-]{36}$/);pm.expect(x.status).to.eql(\"PENDING_MATCH\");});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Consultar solicitudes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/trip-requests"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Lista contiene la solicitud creada\",()=>pm.expect(pm.response.json().some(x=>x.id===pm.collectionVariables.get(\"tripRequestId\"))).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Generar propuestas compatibles",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/trip-requests/{{tripRequestId}}/match-proposals"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "const x=pm.response.json();pm.collectionVariables.set(\"proposalIds\",JSON.stringify(x.map(p=>p.id)));pm.test(\"Una propuesta compatible con tarifa y duración\",()=>{pm.expect(x).to.have.lengthOf(1);pm.expect(x[0].driverId).to.eql(10);pm.expect(x[0].estimatedFare).to.eql(7.7);pm.expect(x[0].estimatedDurationMinutes).to.eql(60);pm.expect(x[0].status).to.eql(\"PROPOSED\");});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Repetir generación sin duplicados",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/trip-requests/{{tripRequestId}}/match-proposals"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Mismos UUID al repetir la generación\",()=>pm.expect(pm.response.json().map(x=>x.id)).to.deep.eql(JSON.parse(pm.collectionVariables.get(\"proposalIds\"))));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Consultar propuestas guardadas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/trip-requests/{{tripRequestId}}/match-proposals"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Coinciden con las propuestas generadas\",()=>pm.expect(pm.response.json().map(x=>x.id)).to.deep.eql(JSON.parse(pm.collectionVariables.get(\"proposalIds\"))));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Rechazar solicitud vacía",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/trip-requests",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"Error de validación 400\",()=>pm.expect(pm.response.json().status).to.eql(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Rechazar latitud fuera de rango",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/trip-requests",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passengerId\": 25,\n  \"originLabel\": \"UPC Monterrico\",\n  \"destinationLabel\": \"Chorrillos\",\n  \"operationZone\": \"{{zone}}\",\n  \"originLat\": 100,\n  \"originLng\": -76.9632,\n  \"destinationLat\": -12.1721,\n  \"destinationLng\": -77.0164,\n  \"travelDate\": \"2026-11-10\",\n  \"earliestDeparture\": \"07:30:00\",\n  \"latestDeparture\": \"08:30:00\",\n  \"seatsRequested\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"Latitud inválida no crea solicitud\",()=>pm.expect(pm.response.json().status).to.eql(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Rechazar disponibilidad sin asientos",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/driver-availabilities",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"driverId\": 10,\n  \"operationZone\": \"{{zone}}\",\n  \"availableDate\": \"2026-11-10\",\n  \"startTime\": \"07:00:00\",\n  \"endTime\": \"09:00:00\",\n  \"availableSeats\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Solicitud inexistente al generar matching",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/trip-requests/00000000-0000-0000-0000-000000000000/match-proposals"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+              "pm.test(\"Solicitud no encontrada\",()=>pm.expect(pm.response.json().status).to.eql(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Rechazar UUID mal formado",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/trip-requests/no-es-un-uuid/match-proposals"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 Crear solicitud sin conductores en la zona",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/trip-requests",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passengerId\": 25,\n  \"originLabel\": \"UPC Monterrico\",\n  \"destinationLabel\": \"Chorrillos\",\n  \"operationZone\": \"{{zone}}-sin-conductores\",\n  \"originLat\": -12.1048,\n  \"originLng\": -76.9632,\n  \"destinationLat\": -12.1721,\n  \"destinationLng\": -77.0164,\n  \"travelDate\": \"2026-11-10\",\n  \"earliestDeparture\": \"07:30:00\",\n  \"latestDeparture\": \"08:30:00\",\n  \"seatsRequested\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set(\"noMatchId\",pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 Matching sin conductores compatibles",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/trip-requests/{{noMatchId}}/match-proposals"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Lista vacía sin candidatos\",()=>pm.expect(pm.response.json()).to.deep.eql([]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 Crear solicitud de cuatro asientos",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/trip-requests",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passengerId\": 25,\n  \"originLabel\": \"UPC Monterrico\",\n  \"destinationLabel\": \"Chorrillos\",\n  \"operationZone\": \"{{zone}}\",\n  \"originLat\": -12.1048,\n  \"originLng\": -76.9632,\n  \"destinationLat\": -12.1721,\n  \"destinationLng\": -77.0164,\n  \"travelDate\": \"2026-11-10\",\n  \"earliestDeparture\": \"07:30:00\",\n  \"latestDeparture\": \"08:30:00\",\n  \"seatsRequested\": 4\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set(\"seatsId\",pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 Matching descarta cupos insuficientes",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/trip-requests/{{seatsId}}/match-proposals"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Tres asientos no cubren una solicitud de cuatro\",()=>pm.expect(pm.response.json()).to.deep.eql([]));"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    }
+  ]
+}

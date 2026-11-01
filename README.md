@@ -23,3 +23,12 @@ Se ejecutaron 28 casos funcionales: 27 devolvieron el estado HTTP esperado y 1 f
 Las suites existentes terminaron sin fallos. Los detalles y las diferencias de conteo del runner de Payments están documentados en el material adjunto. Trip Execution compiló sin errores y se comprobó con pruebas funcionales; no contiene una suite automatizada en la versión revisada.
 
 Se usaron bases locales aisladas y datos ficticios. Esta evidencia no acredita el despliegue en Render ni la integración automática de extremo a extremo. Los eventos de Payments se enviaron manualmente y sus JWT se generaron exclusivamente para la instancia de prueba. No se modificó el código de las APIs.
+
+
+## Pruebas de Trip Planning & Matching con colección Postman
+
+Se ejecutaron exclusivamente las pruebas de esta API: **16 solicitudes y 28 aserciones, sin fallos**. La colección se ejecutó con Newman; las capturas corresponden a su reporte real, no a la aplicación gráfica de Postman.
+
+- [Descargar ZIP de pruebas y capturas](https://github.com/AaronAvilap/funda-tb3/raw/refs/heads/main/ShareWay-Trip-Planning-Pruebas-Postman.zip)
+- [Ver casos, resultados y capturas](pruebas-trip-planning-postman/README.md)
+- [Colección para importar en Postman](pruebas-trip-planning-postman/ShareWay-Trip-Planning-TB3.postman_collection.json)

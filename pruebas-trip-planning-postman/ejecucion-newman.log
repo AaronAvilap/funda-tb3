@@ -1,0 +1,101 @@
+(node:13529) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+newman
+
+ShareWay Trip Planning & Matching — pruebas y evidencia TB3
+
+→ 01 Salud del servicio
+  GET http://localhost:8081/actuator/health [200 OK, 241B, 25ms]
+  ✓  HTTP 200
+  ✓  Servicio UP
+
+→ 02 Registrar disponibilidad compatible
+  POST http://localhost:8081/api/v1/driver-availabilities [201 Created, 463B, 49ms]
+  ✓  HTTP 201
+  ✓  Disponibilidad con UUID y 3 asientos
+
+→ 03 Crear solicitud de viaje
+  POST http://localhost:8081/api/v1/trip-requests [201 Created, 604B, 13ms]
+  ✓  HTTP 201
+  ✓  Solicitud con UUID y estado inicial
+
+→ 04 Consultar solicitudes
+  GET http://localhost:8081/api/v1/trip-requests [200 OK, 1.18kB, 33ms]
+  ✓  HTTP 200
+  ✓  Lista contiene la solicitud creada
+
+→ 05 Generar propuestas compatibles
+  POST http://localhost:8081/api/v1/trip-requests/17f0cfa0-c154-41f0-9d76-48056dcbeb31/match-proposals [200 OK, 341B, 27ms]
+  ✓  HTTP 200
+  ✓  Una propuesta compatible con tarifa y duración
+
+→ 06 Repetir generación sin duplicados
+  POST http://localhost:8081/api/v1/trip-requests/17f0cfa0-c154-41f0-9d76-48056dcbeb31/match-proposals [200 OK, 338B, 8ms]
+  ✓  HTTP 200
+  ✓  Mismos UUID al repetir la generación
+
+→ 07 Consultar propuestas guardadas
+  GET http://localhost:8081/api/v1/trip-requests/17f0cfa0-c154-41f0-9d76-48056dcbeb31/match-proposals [200 OK, 338B, 8ms]
+  ✓  HTTP 200
+  ✓  Coinciden con las propuestas generadas
+
+→ 08 Rechazar solicitud vacía
+  POST http://localhost:8081/api/v1/trip-requests [400 Bad Request, 250B, 9ms]
+  ✓  HTTP 400
+  ✓  Error de validación 400
+
+→ 09 Rechazar latitud fuera de rango
+  POST http://localhost:8081/api/v1/trip-requests [400 Bad Request, 320B, 66ms]
+  ✓  HTTP 400
+  ✓  Latitud inválida no crea solicitud
+
+→ 10 Rechazar disponibilidad sin asientos
+  POST http://localhost:8081/api/v1/driver-availabilities [400 Bad Request, 333B, 7ms]
+  ✓  HTTP 400
+
+→ 11 Solicitud inexistente al generar matching
+  POST http://localhost:8081/api/v1/trip-requests/00000000-0000-0000-0000-000000000000/match-proposals [404 Not Found, 407B, 11ms]
+  ✓  HTTP 404
+  ✓  Solicitud no encontrada
+
+→ 12 Rechazar UUID mal formado
+  POST http://localhost:8081/api/v1/trip-requests/no-es-un-uuid/match-proposals [400 Bad Request, 280B, 9ms]
+  ✓  HTTP 400
+
+→ 13 Crear solicitud sin conductores en la zona
+  POST http://localhost:8081/api/v1/trip-requests [201 Created, 620B, 11ms]
+  ✓  HTTP 201
+
+→ 14 Matching sin conductores compatibles
+  POST http://localhost:8081/api/v1/trip-requests/316ed3a3-9d4d-43ea-886d-50cb490e763f/match-proposals [200 OK, 166B, 14ms]
+  ✓  HTTP 200
+  ✓  Lista vacía sin candidatos
+
+→ 15 Crear solicitud de cuatro asientos
+  POST http://localhost:8081/api/v1/trip-requests [201 Created, 604B, 13ms]
+  ✓  HTTP 201
+
+→ 16 Matching descarta cupos insuficientes
+  POST http://localhost:8081/api/v1/trip-requests/14f9e862-dea6-4928-8d8f-3326ec957244/match-proposals [200 OK, 166B, 15ms]
+  ✓  HTTP 200
+  ✓  Tres asientos no cubren una solicitud de cuatro
+
+┌─────────────────────────┬──────────────────┬──────────────────┐
+│                         │         executed │           failed │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│              iterations │                1 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│                requests │               16 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│            test-scripts │               16 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│      prerequest-scripts │                1 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│              assertions │               28 │                0 │
+├─────────────────────────┴──────────────────┴──────────────────┤
+│ total run duration: 550ms                                     │
+├───────────────────────────────────────────────────────────────┤
+│ total data received: 3.77kB (approx)                          │
+├───────────────────────────────────────────────────────────────┤
+│ average response time: 19ms [min: 7ms, max: 66ms, s.d.: 16ms] │
+└───────────────────────────────────────────────────────────────┘

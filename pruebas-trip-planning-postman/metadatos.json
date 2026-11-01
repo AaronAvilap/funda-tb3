@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/FundaTechPeru/shareway-trip-planning-matching-service",
+  "commit": "8094f48d18ab37fe70258e78a2b6e6ccbb838cc0",
+  "newman_version": "6.2.3",
+  "requests": 16,
+  "assertions": 28,
+  "failures": 0,
+  "environment": "local PostgreSQL; baseUrl http://localhost:8081; sin JWT ni gateway",
+  "screenshots": "Reporte auténtico newman-reporter-htmlextra; no corresponden a la aplicación gráfica de Postman",
+  "started": 1793571154264,
+  "completed": 1793571154814
+}
