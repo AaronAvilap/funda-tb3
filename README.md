@@ -2,7 +2,14 @@
 
 Evidencias de documentación OpenAPI y pruebas obtenidas localmente el 1 de noviembre de 2026.
 
-## Descargas
+## Sección 5.3.2.5 — versión final
+
+- [Descargar Word de la sección final](https://github.com/AaronAvilap/funda-tb3/raw/refs/heads/main/ShareWay-5.3.2.5-Version-Final.docx)
+- [Consultar la sección final en PDF](ShareWay-5.3.2.5-Version-Final.pdf)
+
+Documento de 22 páginas elaborado según las indicaciones de la plantilla: introducción, operaciones y parámetros, ejemplos de respuesta, enlaces a Swagger, 15 figuras explicadas y trazabilidad de repositorios y commits. Distingue las ejecuciones locales de los enlaces de despliegue y conserva las diferencias observadas del contrato.
+
+## Descargas de evidencias
 
 - [ZIP con capturas, registros y resultados](ShareWay-evidencias-Sprint2.zip)
 - [Documento Word con figuras y explicaciones](ShareWay-evidencias-Sprint2.docx)
