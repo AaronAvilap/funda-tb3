@@ -32,3 +32,11 @@ Se ejecutaron exclusivamente las pruebas de esta API: **16 solicitudes y 28 aser
 - [Descargar ZIP de pruebas y capturas](https://github.com/AaronAvilap/funda-tb3/raw/refs/heads/main/ShareWay-Trip-Planning-Pruebas-Postman.zip)
 - [Ver casos, resultados y capturas](pruebas-trip-planning-postman/README.md)
 - [Colección para importar en Postman](pruebas-trip-planning-postman/ShareWay-Trip-Planning-TB3.postman_collection.json)
+
+
+## Capturas de Postman proporcionadas por el autor
+
+- [Word con 16 espacios para imágenes y sus explicaciones](https://github.com/AaronAvilap/funda-tb3/raw/refs/heads/main/ShareWay-Postman-Capturas-Explicadas.docx)
+- [PDF de referencia](ShareWay-Postman-Capturas-Explicadas.pdf)
+
+Las explicaciones corresponden a las capturas compartidas de la aplicación Postman contra Render. El autor insertará las imágenes en los espacios reservados.
