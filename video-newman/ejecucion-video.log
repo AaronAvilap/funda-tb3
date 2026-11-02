@@ -1,0 +1,386 @@
+COLECCIÓN POSTMAN: ShareWay Trip Planning & Matching — pruebas y evidencia TB3
+EJECUTOR: Newman | DESTINO: http://localhost:8081 | DATOS FICTICIOS
+Se ejecutan 16 solicitudes en orden. Los códigos 400 y 404 son esperados en los casos negativos.
+
+(node:20910) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ShareWay Trip Planning & Matching — pruebas y evidencia TB3
+
+────────────────────────────────────────────────────────────────────
+01 Salud del servicio
+────────────────────────────────────────────────────────────────────
+
+→ 01 Salud del servicio
+  GET http://localhost:8081/actuator/health RESPUESTA REAL — HTTP 200 OK
+{
+  "groups": [
+    "liveness",
+    "readiness"
+  ],
+  "status": "UP"
+}
+[200 OK, 241B, 31ms]
+  ✓  HTTP 200
+  ✓  Servicio UP
+
+────────────────────────────────────────────────────────────────────
+02 Registrar disponibilidad compatible
+────────────────────────────────────────────────────────────────────
+
+→ 02 Registrar disponibilidad compatible
+  POST http://localhost:8081/api/v1/driver-availabilities RESPUESTA REAL — HTTP 201 Created
+{
+  "id": "3358a705-160e-4007-8016-39c5bdab9b7c",
+  "driverId": 10,
+  "operationZone": "Evidencia-0db706b4-cea8-4c30-ace3-66bef3ff7076",
+  "availableDate": "2026-11-10",
+  "startTime": "07:00:00",
+  "endTime": "09:00:00",
+  "availableSeats": 3
+}
+[201 Created, 463B, 21ms]
+  ✓  HTTP 201
+  ✓  Disponibilidad con UUID y 3 asientos
+
+────────────────────────────────────────────────────────────────────
+03 Crear solicitud de viaje
+────────────────────────────────────────────────────────────────────
+
+→ 03 Crear solicitud de viaje
+  POST http://localhost:8081/api/v1/trip-requests RESPUESTA REAL — HTTP 201 Created
+{
+  "id": "32008b92-59c7-466e-9663-678580bc2f0e",
+  "passengerId": 25,
+  "originLabel": "UPC Monterrico",
+  "destinationLabel": "Chorrillos",
+  "operationZone": "Evidencia-0db706b4-cea8-4c30-ace3-66bef3ff7076",
+  "travelDate": "2026-11-10",
+  "earliestDeparture": "07:30:00",
+  "latestDeparture": "08:30:00",
+  "seatsRequested": 1,
+  "status": "PENDING_MATCH",
+  "createdAt": "2026-11-02T00:17:56.535137510Z"
+}
+[201 Created, 604B, 14ms]
+  ✓  HTTP 201
+  ✓  Solicitud con UUID y estado inicial
+
+────────────────────────────────────────────────────────────────────
+04 Consultar solicitudes
+────────────────────────────────────────────────────────────────────
+
+→ 04 Consultar solicitudes
+  GET http://localhost:8081/api/v1/trip-requests RESPUESTA REAL — HTTP 200 OK
+[
+  {
+    "id": "32008b92-59c7-466e-9663-678580bc2f0e",
+    "passengerId": 25,
+    "originLabel": "UPC Monterrico",
+    "destinationLabel": "Chorrillos",
+    "operationZone": "Evidencia-0db706b4-cea8-4c30-ace3-66bef3ff7076",
+    "travelDate": "2026-11-10",
+    "earliestDeparture": "07:30:00",
+    "latestDeparture": "08:30:00",
+    "seatsRequested": 1,
+    "status": "PENDING_MATCH",
+    "createdAt": "2026-11-02T00:17:56.535138Z"
+  },
+  {
+    "id": "14f9e862-dea6-4928-8d8f-3326ec957244",
+    "passengerId": 25,
+    "originLabel": "UPC Monterrico",
+    "destinationLabel": "Chorrillos",
+    "operationZone": "Evidencia-8703d6a5-4101-4ce3-82e0-c1ecbc9f2a69",
+    "travelDate": "2026-11-10",
+    "earliestDeparture": "07:30:00",
+    "latestDeparture": "08:30:00",
+    "seatsRequested": 4,
+    "status": "PENDING_MATCH",
+    "createdAt": "2026-11-01T22:12:34.769291Z"
+  },
+  {
+    "id": "316ed3a3-9d4d-43ea-886d-50cb490e763f",
+    "passengerId": 25,
+    "originLabel": "UPC Monterrico",
+    "destinationLabel": "Chorrillos",
+    "operationZone": "Evidencia-8703d6a5-4101-4ce3-82e0-c1ecbc9f2a69-sin-conductores",
+    "travelDate": "2026-11-10",
+    "earliestDeparture": "07:30:00",
+    "latestDeparture": "08:30:00",
+    "seatsRequested": 1,
+    "status": "PENDING_MATCH",
+    "createdAt": "2026-11-01T22:12:34.718036Z"
+  },
+  {
+    "id": "17f0cfa0-c154-41f0-9d76-48056dcbeb31",
+    "passengerId": 25,
+    "originLabel": "UPC Monterrico",
+    "destinationLabel": "Chorrillos",
+    "operationZone": "Evidencia-8703d6a5-4101-4ce3-82e0-c1ecbc9f2a69",
+    "travelDate": "2026-11-10",
+    "earliestDeparture": "07:30:00",
+    "latestDeparture": "08:30:00",
+    "seatsRequested": 1,
+    "status": "PENDING_MATCH",
+    "createdAt": "2026-11-01T22:12:34.395197Z"
+  },
+  {
+    "id": "c7cc4677-ea52-4154-a230-8d52b508e4ca",
+    "passengerId": 25,
+    "originLabel": "UPC Monterrico",
+    "destinationLabel": "Chorrillos",
+    "operationZone": "Chorrillos",
+    "travelDate": "2026-11-10",
+    "earliestDeparture": "07:30:00",
+    "latestDeparture": "08:30:00",
+    "seatsRequested": 1,
+    "status": "PENDING_MATCH",
+    "createdAt": "2026-11-01T21:25:26.078601Z"
+  },
+  {
+    "id": "e41d33b0-4a16-485c-9295-e5db84480f89",
+    "passengerId": 25,
+    "originLabel": "UPC Monterrico",
+    "destinationLabel": "Chorrillos",
+    "operationZone": "Chorrillos",
+    "travelDate": "2026-11-10",
+    "earliestDeparture": "07:30:00",
+    "latestDeparture": "08:30:00",
+    "seatsRequested": 1,
+    "status": "PENDING_MATCH",
+    "createdAt": "2026-11-01T21:24:16.353343Z"
+  }
+]
+[200 OK, 2.29kB, 22ms]
+  ✓  HTTP 200
+  ✓  Lista contiene la solicitud creada
+
+────────────────────────────────────────────────────────────────────
+05 Generar propuestas compatibles
+────────────────────────────────────────────────────────────────────
+
+→ 05 Generar propuestas compatibles
+  POST http://localhost:8081/api/v1/trip-requests/32008b92-59c7-466e-9663-678580bc2f0e/match-proposals RESPUESTA REAL — HTTP 200 OK
+[
+  {
+    "id": "aaa53007-0294-4d08-9cc9-c17a6df72a32",
+    "driverId": 10,
+    "estimatedFare": 7.7,
+    "estimatedDurationMinutes": 60,
+    "status": "PROPOSED",
+    "createdAt": "2026-11-02T00:18:01.625317698Z"
+  }
+]
+[200 OK, 341B, 20ms]
+  ✓  HTTP 200
+  ✓  Una propuesta compatible con tarifa y duración
+
+────────────────────────────────────────────────────────────────────
+06 Repetir generación sin duplicados
+────────────────────────────────────────────────────────────────────
+
+→ 06 Repetir generación sin duplicados
+  POST http://localhost:8081/api/v1/trip-requests/32008b92-59c7-466e-9663-678580bc2f0e/match-proposals RESPUESTA REAL — HTTP 200 OK
+[
+  {
+    "id": "aaa53007-0294-4d08-9cc9-c17a6df72a32",
+    "driverId": 10,
+    "estimatedFare": 7.7,
+    "estimatedDurationMinutes": 60,
+    "status": "PROPOSED",
+    "createdAt": "2026-11-02T00:18:01.625318Z"
+  }
+]
+[200 OK, 338B, 24ms]
+  ✓  HTTP 200
+  ✓  Mismos UUID al repetir la generación
+
+────────────────────────────────────────────────────────────────────
+07 Consultar propuestas guardadas
+────────────────────────────────────────────────────────────────────
+
+→ 07 Consultar propuestas guardadas
+  GET http://localhost:8081/api/v1/trip-requests/32008b92-59c7-466e-9663-678580bc2f0e/match-proposals RESPUESTA REAL — HTTP 200 OK
+[
+  {
+    "id": "aaa53007-0294-4d08-9cc9-c17a6df72a32",
+    "driverId": 10,
+    "estimatedFare": 7.7,
+    "estimatedDurationMinutes": 60,
+    "status": "PROPOSED",
+    "createdAt": "2026-11-02T00:18:01.625318Z"
+  }
+]
+[200 OK, 338B, 14ms]
+  ✓  HTTP 200
+  ✓  Coinciden con las propuestas generadas
+
+────────────────────────────────────────────────────────────────────
+08 Rechazar solicitud vacía
+────────────────────────────────────────────────────────────────────
+
+→ 08 Rechazar solicitud vacía
+  POST http://localhost:8081/api/v1/trip-requests RESPUESTA REAL — HTTP 400 Bad Request
+{
+  "timestamp": "2026-11-02T00:18:09.236Z",
+  "status": 400,
+  "error": "Bad Request",
+  "path": "/api/v1/trip-requests"
+}
+[400 Bad Request, 250B, 12ms]
+  ✓  HTTP 400
+  ✓  Error de validación 400
+
+────────────────────────────────────────────────────────────────────
+09 Rechazar latitud fuera de rango
+────────────────────────────────────────────────────────────────────
+
+→ 09 Rechazar latitud fuera de rango
+  POST http://localhost:8081/api/v1/trip-requests RESPUESTA REAL — HTTP 400 Bad Request
+{
+  "timestamp": "2026-11-02T00:18:11.771919044Z",
+  "status": 400,
+  "error": "Validation failed",
+  "message": "originLat: must be less than or equal to 90.0",
+  "path": "/api/v1/trip-requests"
+}
+[400 Bad Request, 320B, 11ms]
+  ✓  HTTP 400
+  ✓  Latitud inválida no crea solicitud
+
+────────────────────────────────────────────────────────────────────
+10 Rechazar disponibilidad sin asientos
+────────────────────────────────────────────────────────────────────
+
+→ 10 Rechazar disponibilidad sin asientos
+  POST http://localhost:8081/api/v1/driver-availabilities RESPUESTA REAL — HTTP 400 Bad Request
+{
+  "timestamp": "2026-11-02T00:18:14.299543276Z",
+  "status": 400,
+  "error": "Validation failed",
+  "message": "availableSeats: must be greater than or equal to 1",
+  "path": "/api/v1/driver-availabilities"
+}
+[400 Bad Request, 333B, 8ms]
+  ✓  HTTP 400
+
+────────────────────────────────────────────────────────────────────
+11 Solicitud inexistente al generar matching
+────────────────────────────────────────────────────────────────────
+
+→ 11 Solicitud inexistente al generar matching
+  POST http://localhost:8081/api/v1/trip-requests/00000000-0000-0000-0000-000000000000/match-proposals RESPUESTA REAL — HTTP 404 Not Found
+{
+  "timestamp": "2026-11-02T00:18:16.826292960Z",
+  "status": 404,
+  "error": "Not found",
+  "message": "Trip request not found: 00000000-0000-0000-0000-000000000000",
+  "path": "/api/v1/trip-requests/00000000-0000-0000-0000-000000000000/match-proposals"
+}
+[404 Not Found, 407B, 11ms]
+  ✓  HTTP 404
+  ✓  Solicitud no encontrada
+
+────────────────────────────────────────────────────────────────────
+12 Rechazar UUID mal formado
+────────────────────────────────────────────────────────────────────
+
+→ 12 Rechazar UUID mal formado
+  POST http://localhost:8081/api/v1/trip-requests/no-es-un-uuid/match-proposals RESPUESTA REAL — HTTP 400 Bad Request
+{
+  "timestamp": "2026-11-02T00:18:19.352Z",
+  "status": 400,
+  "error": "Bad Request",
+  "path": "/api/v1/trip-requests/no-es-un-uuid/match-proposals"
+}
+[400 Bad Request, 280B, 8ms]
+  ✓  HTTP 400
+
+────────────────────────────────────────────────────────────────────
+13 Crear solicitud sin conductores en la zona
+────────────────────────────────────────────────────────────────────
+
+→ 13 Crear solicitud sin conductores en la zona
+  POST http://localhost:8081/api/v1/trip-requests RESPUESTA REAL — HTTP 201 Created
+{
+  "id": "2eb00a43-db9e-47d3-8852-87d334f5da2b",
+  "passengerId": 25,
+  "originLabel": "UPC Monterrico",
+  "destinationLabel": "Chorrillos",
+  "operationZone": "Evidencia-0db706b4-cea8-4c30-ace3-66bef3ff7076-sin-conductores",
+  "travelDate": "2026-11-10",
+  "earliestDeparture": "07:30:00",
+  "latestDeparture": "08:30:00",
+  "seatsRequested": 1,
+  "status": "PENDING_MATCH",
+  "createdAt": "2026-11-02T00:18:21.879030121Z"
+}
+[201 Created, 620B, 12ms]
+  ✓  HTTP 201
+
+────────────────────────────────────────────────────────────────────
+14 Matching sin conductores compatibles
+────────────────────────────────────────────────────────────────────
+
+→ 14 Matching sin conductores compatibles
+  POST http://localhost:8081/api/v1/trip-requests/2eb00a43-db9e-47d3-8852-87d334f5da2b/match-proposals RESPUESTA REAL — HTTP 200 OK
+[]
+[200 OK, 166B, 17ms]
+  ✓  HTTP 200
+  ✓  Lista vacía sin candidatos
+
+────────────────────────────────────────────────────────────────────
+15 Crear solicitud de cuatro asientos
+────────────────────────────────────────────────────────────────────
+
+→ 15 Crear solicitud de cuatro asientos
+  POST http://localhost:8081/api/v1/trip-requests RESPUESTA REAL — HTTP 201 Created
+{
+  "id": "2432c50c-e57e-4776-b0d6-08f9c173a5aa",
+  "passengerId": 25,
+  "originLabel": "UPC Monterrico",
+  "destinationLabel": "Chorrillos",
+  "operationZone": "Evidencia-0db706b4-cea8-4c30-ace3-66bef3ff7076",
+  "travelDate": "2026-11-10",
+  "earliestDeparture": "07:30:00",
+  "latestDeparture": "08:30:00",
+  "seatsRequested": 4,
+  "status": "PENDING_MATCH",
+  "createdAt": "2026-11-02T00:18:26.943917115Z"
+}
+[201 Created, 604B, 14ms]
+  ✓  HTTP 201
+
+────────────────────────────────────────────────────────────────────
+16 Matching descarta cupos insuficientes
+────────────────────────────────────────────────────────────────────
+
+→ 16 Matching descarta cupos insuficientes
+  POST http://localhost:8081/api/v1/trip-requests/2432c50c-e57e-4776-b0d6-08f9c173a5aa/match-proposals RESPUESTA REAL — HTTP 200 OK
+[]
+[200 OK, 166B, 18ms]
+  ✓  HTTP 200
+  ✓  Tres asientos no cubren una solicitud de cuatro
+
+┌─────────────────────────┬──────────────────┬─────────────────┐
+│                         │         executed │          failed │
+├─────────────────────────┼──────────────────┼─────────────────┤
+│              iterations │                1 │               0 │
+├─────────────────────────┼──────────────────┼─────────────────┤
+│                requests │               16 │               0 │
+├─────────────────────────┼──────────────────┼─────────────────┤
+│            test-scripts │               16 │               0 │
+├─────────────────────────┼──────────────────┼─────────────────┤
+│      prerequest-scripts │                1 │               0 │
+├─────────────────────────┼──────────────────┼─────────────────┤
+│              assertions │               28 │               0 │
+├─────────────────────────┴──────────────────┴─────────────────┤
+│ total run duration: 40.6s                                    │
+├──────────────────────────────────────────────────────────────┤
+│ total data received: 4.87kB (approx)                         │
+├──────────────────────────────────────────────────────────────┤
+│ average response time: 16ms [min: 8ms, max: 31ms, s.d.: 6ms] │
+└──────────────────────────────────────────────────────────────┘
+
+RESULTADO FINAL: 16 solicitudes; 28 aserciones; 0 fallos.
+La ejecución corresponde a Newman sobre una API local; no es la interfaz gráfica de Postman.

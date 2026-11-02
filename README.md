@@ -40,3 +40,9 @@ Se ejecutaron exclusivamente las pruebas de esta API: **16 solicitudes y 28 aser
 - [PDF de referencia](ShareWay-Postman-Capturas-Explicadas.pdf)
 
 Las explicaciones corresponden a las capturas compartidas de la aplicación Postman contra Render. El autor insertará las imágenes en los espacios reservados.
+
+
+## Video de ejecución con Newman
+
+- [Descargar video MP4 sin audio — 56 segundos](https://github.com/AaronAvilap/funda-tb3/raw/refs/heads/main/ShareWay-Pruebas-Newman-Sin-Audio.mp4)
+- [Detalles y resultados de la grabación](video-newman/README.md)
